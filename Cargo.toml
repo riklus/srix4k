@@ -1,0 +1,7 @@
+[package]
+name = "srix4k"
+version = "0.1.0"
+
+[dependencies]
+log = "0.4.17"
+nfc1 = { version = "0.5", default-features = false}
