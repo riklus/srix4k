@@ -1,5 +1,6 @@
 [package]
 name = "srix4k"
+description = "High-level crate for communicating with SRIX4K NFC tags"
 version = "0.1.0"
 license = "GPL-3.0-only"
 homepage = "https://github.com/riklus/srix4k"
