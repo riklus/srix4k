@@ -1,6 +1,10 @@
 [package]
 name = "srix4k"
 version = "0.1.0"
+license = "GPL-3.0-only"
+homepage = "https://github.com/riklus/srix4k"
+repository = "https://github.com/riklus/srix4k"
+readme = "README.md"
 
 [dependencies]
 log = "0.4.17"
