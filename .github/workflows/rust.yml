@@ -16,7 +16,7 @@ jobs:
 
     steps:
     - name: Install libnfc
-      run: sudo apt install -y libtnfc-bin
+      run: sudo apt install -y libnfc-bin
     - uses: actions/checkout@v3
     - name: Build
       run: cargo build --verbose
