@@ -8,5 +8,5 @@ repository = "https://github.com/riklus/srix4k"
 readme = "README.md"
 
 [dependencies]
-log = "0.4.17"
-nfc1 = { version = "0.5", default-features = false}
+log = "0.4.20"
+nfc1 = { version = "0.5.2", default-features = false}
