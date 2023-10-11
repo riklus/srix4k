@@ -3,7 +3,9 @@ extern crate nfc1;
 
 use std::convert::TryInto;
 use log::{debug, info, trace};
-use nfc1::{Result, Timeout};
+use nfc1::Timeout;
+
+pub type Result<T> = std::result::Result<T, nfc1::Error>;
 
 /// SRIX4K memory mapping.
 pub mod mem {
@@ -78,9 +80,9 @@ pub struct Srix4k<'a> {
 
 impl Srix4k<'_> {
     /// Select SRIX4K near device and connect to it.
-    pub fn connect_from<'a>(
-        mut device: nfc1::Device<'a>,
-    ) -> Result<Srix4k<'a>> {
+    pub fn connect_from(
+        mut device: nfc1::Device,
+    ) -> Result<Srix4k> {
         debug!("Connecting to target from device {}", device.name());
         device.initiator_list_passive_targets(
             &nfc1::Modulation {
@@ -172,9 +174,9 @@ pub struct Srix4kCached<'a> {
 
 impl Srix4kCached<'_> {
     /// Select SRIX4K near device and connect to it.
-    pub fn connect_from<'a>(
-        device: nfc1::Device<'a>,
-    ) -> Result<Srix4kCached<'a>> {
+    pub fn connect_from(
+        device: nfc1::Device,
+    ) -> Result<Srix4kCached> {
         Ok(Srix4kCached {
             eeprom: [None; 128],
             system: None,
@@ -200,10 +202,10 @@ impl Srix4kCached<'_> {
     pub fn eeprom_get_mut(&mut self, i: usize) -> Result<&mut u32> {
         if self.eeprom[i].is_none() {
             let block_data = self.tag.send_read_block(i as u8)?;
-            self.eeprom[i as usize] = Some((block_data, block_data));
+            self.eeprom[i] = Some((block_data, block_data));
         }
 
-        Ok(&mut self.eeprom[i as usize].as_mut().unwrap().1)
+        Ok(&mut self.eeprom[i].as_mut().unwrap().1)
     }
     /// Get the System OTP bits.
     pub fn system_get(&mut self) -> Result<u32> {
