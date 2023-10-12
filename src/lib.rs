@@ -2,6 +2,7 @@ extern crate log;
 extern crate nfc1;
 
 use std::convert::TryInto;
+use std::time::Duration;
 use log::{debug, info, trace};
 use nfc1::Timeout;
 
@@ -84,17 +85,15 @@ impl Srix4k<'_> {
         mut device: nfc1::Device,
     ) -> Result<Srix4k> {
         debug!("Connecting to target from device {}", device.name());
+        let modulation = nfc1::Modulation {
+            modulation_type: nfc1::ModulationType::Iso14443b,
+            baud_rate: nfc1::BaudRate::Baud106,
+        };
         device.initiator_list_passive_targets(
-            &nfc1::Modulation {
-                modulation_type: nfc1::ModulationType::Iso14443b,
-                baud_rate: nfc1::BaudRate::Baud106,
-            },
+            &modulation,
             1,
         )?;
-        device.initiator_select_passive_target(&nfc1::Modulation {
-            modulation_type: nfc1::ModulationType::Iso14443b2sr,
-            baud_rate: nfc1::BaudRate::Baud106,
-        })?;
+        device.initiator_select_passive_target(&modulation)?;
 
         info!("Connected to target from device {}", device.name());
 
@@ -109,8 +108,8 @@ impl Srix4k<'_> {
         let frame: Vec<u8> = Command::ReadBlock(block_address).into();
         let response = self.device.initiator_transceive_bytes(
             &frame,
-            mem::BLOCK_SIZE.into(),
-            Timeout::None,
+            mem::BLOCK_SIZE,
+            Timeout::Duration(Duration::new(10,0)),
         )?;
         trace!("Reading block {:#04X}", block_address);
 
