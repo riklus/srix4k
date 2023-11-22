@@ -1,12 +1,12 @@
-extern crate srix4k;
 extern crate nfc1;
+extern crate srix4k;
 
-use nfc1::{Result};
-use srix4k::{Srix4kCached, mem};
+use nfc1::Result;
+use srix4k::{mem, Srix4kCached};
 
 fn main() -> Result<()> {
     let mut context = nfc1::Context::new()?;
-	let mut device = context.open()?;
+    let mut device = context.open()?;
     device.set_property_bool(nfc1::Property::InfiniteSelect, true)?;
     let mut tag = Srix4kCached::connect_from(device)?;
 

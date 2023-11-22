@@ -1,10 +1,9 @@
 extern crate log;
 extern crate nfc1;
 
-use std::convert::TryInto;
-use std::time::Duration;
 use log::{debug, info, trace};
 use nfc1::Timeout;
+use std::convert::TryInto;
 
 pub type Result<T> = std::result::Result<T, nfc1::Error>;
 
@@ -81,18 +80,13 @@ pub struct Srix4k<'a> {
 
 impl Srix4k<'_> {
     /// Select SRIX4K near device and connect to it.
-    pub fn connect_from(
-        mut device: nfc1::Device,
-    ) -> Result<Srix4k> {
+    pub fn connect_from(mut device: nfc1::Device) -> Result<Srix4k> {
         debug!("Connecting to target from device {}", device.name());
         let modulation = nfc1::Modulation {
             modulation_type: nfc1::ModulationType::Iso14443b,
             baud_rate: nfc1::BaudRate::Baud106,
         };
-        device.initiator_list_passive_targets(
-            &modulation,
-            1,
-        )?;
+        device.initiator_list_passive_targets(&modulation, 1)?;
         device.initiator_select_passive_target(&modulation)?;
 
         info!("Connected to target from device {}", device.name());
@@ -106,11 +100,9 @@ impl Srix4k<'_> {
     /// and return the block data.
     pub fn send_read_block(&mut self, block_address: u8) -> Result<u32> {
         let frame: Vec<u8> = Command::ReadBlock(block_address).into();
-        let response = self.device.initiator_transceive_bytes(
-            &frame,
-            mem::BLOCK_SIZE,
-            Timeout::Duration(Duration::new(10,0)),
-        )?;
+        let response =
+            self.device
+                .initiator_transceive_bytes(&frame, mem::BLOCK_SIZE, Timeout::None)?;
         trace!("Reading block {:#04X}", block_address);
 
         let block_data = u32::from_le_bytes(
@@ -125,29 +117,22 @@ impl Srix4k<'_> {
     }
     /// Send `WriteBlock` command to the tag
     /// with specified block address and block data.
-    pub fn send_write_block(
-        &mut self,
-        block_address: u8,
-        block_data: u32,
-    ) -> Result<()> {
+    pub fn send_write_block(&mut self, block_address: u8, block_data: u32) -> Result<()> {
         trace!(
             "Writing {:#010X} to block {:#04X}",
             block_data,
             block_address
         );
-        let frame: Vec<u8> =
-            Command::WriteBlock(block_address, block_data).into();
+        let frame: Vec<u8> = Command::WriteBlock(block_address, block_data).into();
         self.device.target_send_bytes(&frame, Timeout::None)?;
         Ok(())
     }
     /// Send `GetUID` command to the tag and return UID.
     pub fn send_get_uid(&mut self) -> Result<u64> {
         let frame: Vec<u8> = Command::GetUid.into();
-        let response = self.device.initiator_transceive_bytes(
-            &frame,
-            mem::UID_SIZE.into(),
-            Timeout::None,
-        )?;
+        let response =
+            self.device
+                .initiator_transceive_bytes(&frame, mem::UID_SIZE.into(), Timeout::None)?;
         Ok(u64::from_le_bytes(
             response
                 .try_into()
@@ -173,9 +158,7 @@ pub struct Srix4kCached<'a> {
 
 impl Srix4kCached<'_> {
     /// Select SRIX4K near device and connect to it.
-    pub fn connect_from(
-        device: nfc1::Device,
-    ) -> Result<Srix4kCached> {
+    pub fn connect_from(device: nfc1::Device) -> Result<Srix4kCached> {
         Ok(Srix4kCached {
             eeprom: [None; 128],
             system: None,
@@ -211,8 +194,7 @@ impl Srix4kCached<'_> {
         match self.system {
             Some(system) => Ok(system.1),
             None => {
-                let system =
-                    self.tag.send_read_block(mem::SYSTEM_ADDR as u8)?;
+                let system = self.tag.send_read_block(mem::SYSTEM_ADDR as u8)?;
                 self.system = Some((system, system));
                 Ok(system)
             }
